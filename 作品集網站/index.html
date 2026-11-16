@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>相簿</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500&family=Jost:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--fg:#1f1f1f;--mut:#8c8c8c;--line:#ececec;--ac:#1f1f1f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:300 15px/1.7 'Noto Sans TC',sans-serif}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:88px 32px 64px}
+.brand{font:400 .68rem 'Jost',sans-serif;letter-spacing:.45em;color:var(--mut)}
+h1{font-weight:300;font-size:clamp(1.8rem,4.5vw,2.8rem);letter-spacing:.06em;margin:16px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:48px 32px;margin-top:64px}
+.cv{display:block;aspect-ratio:4/3;background:#f3f3f3 center/cover;transition:opacity .4s}
+.card:hover .cv{opacity:.85}
+.card h2{font-weight:400;font-size:1.15rem;margin:14px 0 2px}
+.sub{color:var(--mut);font-size:.85rem}
+.meta{color:var(--mut);font-size:.72rem;letter-spacing:.1em;margin-top:2px}
+footer{margin-top:96px;padding-top:24px;border-top:1px solid var(--line);color:var(--mut);font-size:.8rem;letter-spacing:.08em}
+.back{color:var(--mut);font-size:.8rem;letter-spacing:.15em;display:inline-block;margin-bottom:28px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 24px}
+.chip{background:none;border:1px solid var(--line);color:var(--mut);padding:6px 14px;border-radius:99px;font:inherit;font-size:.78rem;cursor:pointer}
+.chip:hover{border-color:var(--fg);color:var(--fg)}.chip.on{background:var(--fg);border-color:var(--fg);color:#fff}
+.masonry{columns:4 240px;column-gap:10px}
+.masonry figure{margin:0 0 10px;position:relative;break-inside:avoid;background:#f3f3f3}
+.masonry img{width:100%;display:block;cursor:zoom-in}
+figure small{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.55);padding:1px 8px;border-radius:99px;font-size:.68rem;opacity:0;transition:.2s}
+figure:hover small{opacity:1}
+.heart{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.5);border:0;color:#fff;border-radius:50%;width:34px;height:34px;cursor:pointer;opacity:0;transition:.2s}
+figure:hover .heart,.heart.on{opacity:1}.heart.on{color:#ff5d73}
+.ctl{display:flex;gap:6px;margin-top:8px;align-items:center}
+figure .ctl{position:absolute;top:6px;left:6px;margin:0}
+.ctl button,.eb{background:#fff;color:var(--fg);border:1px solid #d8d8d8;padding:5px 10px;font:inherit;font-size:.72rem;cursor:pointer}
+.ctl button:hover,.eb:hover{background:var(--fg);color:#fff}
+.big{margin-top:36px;padding:12px 22px}
+[contenteditable]{outline:1px dashed rgba(0,0,0,.3);outline-offset:3px;min-width:2em;display:inline-block}
+.tb{position:fixed;right:18px;bottom:18px;z-index:50;display:flex;gap:6px}
+.tb button{background:#fff;color:var(--fg);border:1px solid #cfcfcf;box-shadow:0 4px 18px rgba(0,0,0,.08);padding:10px 16px;font:inherit;font-size:.78rem;cursor:pointer}
+.tb button:hover{background:var(--fg);color:#fff}
+#lb{position:fixed;inset:0;background:rgba(255,255,255,.98);display:none;align-items:center;justify-content:center;z-index:100}
+#lb.on{display:flex}
+#lb img{max-width:92vw;max-height:82vh}
+#lb button{background:none;border:0;color:#222;font-size:1.8rem;cursor:pointer}
+#lb .x{position:absolute;top:14px;right:20px}
+#lb .n{position:absolute;top:50%;transform:translateY(-50%);padding:20px}
+#lb .p{left:6px}#lb .q{right:6px}
+.cap{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:var(--mut);font-size:.82rem}
+.cap a{color:var(--fg);text-decoration:underline;margin-left:14px}
+.cap .heart2{font-size:1.2rem!important;color:#999!important}.cap .heart2.on{color:#ff5d73!important}
+.bulk{display:flex;gap:8px;margin:0 0 20px;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:#fff;padding:12px 0;z-index:20;border-bottom:1px solid var(--line)}
+.ck{position:absolute;top:8px;right:8px;z-index:5;background:#fff;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer}
+.ck input{width:16px;height:16px;margin:0;cursor:pointer;accent-color:#1f1f1f}
+.card{position:relative}
+figure.sel{outline:3px solid var(--fg);outline-offset:-3px}
+.card.sel .cv{outline:3px solid var(--fg);outline-offset:-3px}
+.eb.del{border-color:#c0392b;color:#c0392b}.eb.del:hover{background:#c0392b;color:#fff}
+.eb[disabled]{opacity:.35;pointer-events:none}
+.rt{margin:14px 0 4px;max-width:720px;color:var(--mut);line-height:1.9}
+.rt a{color:var(--fg);text-decoration:underline}
+.rt[contenteditable]{display:block;min-height:2.4em}
+.rt:empty::before{content:attr(data-ph);color:#c4c4c4}
+.rt:not([contenteditable]):empty{display:none}
+.rtb{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:200;display:none;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;background:#fff;border:1px solid #ddd;box-shadow:0 8px 30px rgba(0,0,0,.12);padding:8px 10px;max-width:96vw}
+.rtb.on{display:flex}
+.rtb button,.rtb select{background:#fff;border:1px solid #d8d8d8;padding:5px 9px;font:inherit;font-size:.75rem;cursor:pointer}
+.rtb button:hover{background:var(--fg);color:#fff}
+.rtb input[type=color]{width:30px;height:28px;padding:0;border:1px solid #d8d8d8;background:none;cursor:pointer}
+.sp{position:fixed;top:0;right:0;bottom:0;width:340px;max-width:92vw;background:#fff;border-left:1px solid var(--line);box-shadow:-8px 0 30px rgba(0,0,0,.08);z-index:150;padding:24px;overflow:auto;transform:translateX(100%);transition:transform .3s;font-size:.8rem}
+.sp.on{transform:none}
+.sp h4{margin:22px 0 8px;font-weight:500;letter-spacing:.12em;font-size:.72rem;color:var(--mut)}
+.sp label{display:block;margin-bottom:8px;color:var(--mut);font-size:.72rem}
+.sp select,.sp input[type=text]{width:100%;padding:8px;border:1px solid #d8d8d8;font:inherit;margin:4px 0 8px}
+.sp p{color:var(--mut);line-height:1.8;font-size:.72rem}
+.lock{text-align:center;max-width:420px}
+.lock form{margin-top:24px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.lock input{padding:10px 14px;border:1px solid #d8d8d8;font:inherit}
+.err{width:100%;color:#c0392b;font-size:.8rem;min-height:1.2em;margin:0}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="application/json" id="data">{"brand": "YOUR STUDIO", "title": "你的名字 · 相簿", "name": "你的名字", "ig": "yourname", "albums": [{"id": "a1", "title": "示範相簿 A", "sub": "活動名稱或副標題", "meta": "2026 · 台北", "photos": [{"id": "a1p0", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27800%27%20height%3D%271000%27%20viewBox%3D%270%200%20800%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23ece7df%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23d6cdbf%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27114%27%20text-anchor%3D%27middle%27%3E01%3C/text%3E%3C/svg%3E", "t": ["小美"]}, {"id": "a1p1", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271000%27%20height%3D%27700%27%20viewBox%3D%270%200%201000%20700%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23e1e8ec%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23c0cfd7%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27142%27%20text-anchor%3D%27middle%27%3E02%3C/text%3E%3C/svg%3E", "t": ["阿傑"]}, {"id": "a1p2", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27800%27%20height%3D%27800%27%20viewBox%3D%270%200%20800%20800%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23efe3e5%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23d8bec4%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27114%27%20text-anchor%3D%27middle%27%3E03%3C/text%3E%3C/svg%3E", "t": []}, {"id": "a1p3", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27700%27%20height%3D%271000%27%20viewBox%3D%270%200%20700%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23e4eae1%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23c0cebb%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27100%27%20text-anchor%3D%27middle%27%3E04%3C/text%3E%3C/svg%3E", "t": ["小美"]}, {"id": "a1p4", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271000%27%20height%3D%27750%27%20viewBox%3D%270%200%201000%20750%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23f1e9d9%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23dfceae%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27142%27%20text-anchor%3D%27middle%27%3E05%3C/text%3E%3C/svg%3E", "t": ["阿傑"]}, {"id": "a1p5", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27800%27%20height%3D%271100%27%20viewBox%3D%270%200%20800%201100%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23e7e5ef%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23c9c5da%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27114%27%20text-anchor%3D%27middle%27%3E06%3C/text%3E%3C/svg%3E", "t": []}, {"id": "a1p6", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27800%27%20height%3D%271000%27%20viewBox%3D%270%200%20800%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23ece7df%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23d6cdbf%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27114%27%20text-anchor%3D%27middle%27%3E07%3C/text%3E%3C/svg%3E", "t": ["小美"]}, {"id": "a1p7", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271000%27%20height%3D%27700%27%20viewBox%3D%270%200%201000%20700%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23e1e8ec%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23c0cfd7%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27142%27%20text-anchor%3D%27middle%27%3E08%3C/text%3E%3C/svg%3E", "t": ["阿傑"]}, {"id": "a1p8", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27800%27%20height%3D%27800%27%20viewBox%3D%270%200%20800%20800%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23efe3e5%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23d8bec4%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27114%27%20text-anchor%3D%27middle%27%3E09%3C/text%3E%3C/svg%3E", "t": []}, {"id": "a1p9", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27700%27%20height%3D%271000%27%20viewBox%3D%270%200%20700%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23e4eae1%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23c0cebb%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27100%27%20text-anchor%3D%27middle%27%3E10%3C/text%3E%3C/svg%3E", "t": ["小美"]}, {"id": "a1p10", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271000%27%20height%3D%27750%27%20viewBox%3D%270%200%201000%20750%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23f1e9d9%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23dfceae%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27142%27%20text-anchor%3D%27middle%27%3E11%3C/text%3E%3C/svg%3E", "t": ["阿傑"]}, {"id": "a1p11", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27800%27%20height%3D%271100%27%20viewBox%3D%270%200%20800%201100%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23e7e5ef%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23c9c5da%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27114%27%20text-anchor%3D%27middle%27%3E12%3C/text%3E%3C/svg%3E", "t": []}, {"id": "a1p12", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27800%27%20height%3D%271000%27%20viewBox%3D%270%200%20800%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23ece7df%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23d6cdbf%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27114%27%20text-anchor%3D%27middle%27%3E13%3C/text%3E%3C/svg%3E", "t": ["小美"]}, {"id": "a1p13", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271000%27%20height%3D%27700%27%20viewBox%3D%270%200%201000%20700%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23e1e8ec%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23c0cfd7%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27142%27%20text-anchor%3D%27middle%27%3E14%3C/text%3E%3C/svg%3E", "t": ["阿傑"]}]}, {"id": "a2", "title": "示範相簿 B", "sub": "第二場活動", "meta": "2026 · 高雄", "photos": [{"id": "a2p0", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27700%27%20height%3D%271000%27%20viewBox%3D%270%200%20700%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23e4eae1%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23c0cebb%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27100%27%20text-anchor%3D%27middle%27%3E04%3C/text%3E%3C/svg%3E", "t": ["小美"]}, {"id": "a2p1", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271000%27%20height%3D%27750%27%20viewBox%3D%270%200%201000%20750%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23f1e9d9%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23dfceae%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27142%27%20text-anchor%3D%27middle%27%3E05%3C/text%3E%3C/svg%3E", "t": ["阿傑"]}, {"id": "a2p2", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27800%27%20height%3D%271100%27%20viewBox%3D%270%200%20800%201100%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23e7e5ef%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23c9c5da%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27114%27%20text-anchor%3D%27middle%27%3E06%3C/text%3E%3C/svg%3E", "t": []}, {"id": "a2p3", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27800%27%20height%3D%271000%27%20viewBox%3D%270%200%20800%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23ece7df%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23d6cdbf%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27114%27%20text-anchor%3D%27middle%27%3E07%3C/text%3E%3C/svg%3E", "t": ["阿傑"]}, {"id": "a2p4", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271000%27%20height%3D%27700%27%20viewBox%3D%270%200%201000%20700%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23e1e8ec%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23c0cfd7%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27142%27%20text-anchor%3D%27middle%27%3E08%3C/text%3E%3C/svg%3E", "t": ["小美"]}, {"id": "a2p5", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27800%27%20height%3D%27800%27%20viewBox%3D%270%200%20800%20800%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23efe3e5%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23d8bec4%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27114%27%20text-anchor%3D%27middle%27%3E09%3C/text%3E%3C/svg%3E", "t": []}, {"id": "a2p6", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27700%27%20height%3D%271000%27%20viewBox%3D%270%200%20700%201000%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23e4eae1%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23c0cebb%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27100%27%20text-anchor%3D%27middle%27%3E10%3C/text%3E%3C/svg%3E", "t": ["小美"]}, {"id": "a2p7", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271000%27%20height%3D%27750%27%20viewBox%3D%270%200%201000%20750%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23f1e9d9%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23dfceae%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27142%27%20text-anchor%3D%27middle%27%3E11%3C/text%3E%3C/svg%3E", "t": ["阿傑"]}, {"id": "a2p8", "u": "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27800%27%20height%3D%271100%27%20viewBox%3D%270%200%20800%201100%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23e7e5ef%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23c9c5da%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20fill%3D%27url%28%23g%29%27/%3E%3Ctext%20x%3D%2750%25%27%20y%3D%2752%25%27%20fill%3D%27black%27%20fill-opacity%3D%27.14%27%20font-family%3D%27sans-serif%27%20font-size%3D%27114%27%20text-anchor%3D%27middle%27%3E12%3C/text%3E%3C/svg%3E", "t": []}]}]}</script>
+<script>
+const $=(s,r=document)=>r.querySelector(s),esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let D=JSON.parse($('#data').textContent),ED=false,dirty=false,sel=new Set(),view={f:'all'},cur=[],li=0,tgt=null;
+const ALLOW=location.protocol==='file:'||location.hash==='#edit'||top!==self;
+const uid=()=>Math.random().toString(36).slice(2,8),app=$('#app');
+let F={};try{F=JSON.parse(localStorage.getItem('fav')||'{}')}catch(e){}
+const saveF=()=>{try{localStorage.setItem('fav',JSON.stringify(F))}catch(e){}};
+const E=(f,t,id)=>`<span data-f="${f}"${id?` data-id="${id}"`:''}${ED?' contenteditable spellcheck="false"':''}>${esc(t)}</span>`;
+const cover=a=>{const p=a.photos.find(p=>p.id===a.cover)||a.photos[0];return p?p.u.replace(/'/g,'%27'):''};
+const curAlbum=()=>{const m=location.hash.match(/^#a-(\w+)$/);return m&&D.albums.find(x=>x.id===m[1])};
+
+const bulk=n=>ED?`<div class="bulk"><button class="eb" data-a="selall">全選（${n}）</button><button class="eb" data-a="selnone">取消全選</button><button class="eb del" data-a="delsel"${sel.size?'':' disabled'}>🗑 刪除所選 (${sel.size})</button></div>`:'';
+function indexV(){
+  return `<div class="wrap"><div class="brand">${E('brand',D.brand)}</div><h1>${E('title',D.title)}</h1>${rt('intro',D.intro,'','點此輸入簡介，可加入連結與字體格式')}${bulk(D.albums.length)}<div class="grid">${D.albums.map(a=>`<div class="card${sel.has(a.id)?' sel':''}">${ED?`<label class="ck" data-id="${a.id}"><input type="checkbox" data-a="sel"${sel.has(a.id)?' checked':''}></label>`:''}<a class="cv" ${ED?'':`href="#a-${a.id}"`} style="background-image:url('${a.pw&&!ED?'':cover(a)}')"></a><h2>${ED?E('title',a.title,a.id):`<a href="#a-${a.id}">${a.pw?'🔒 ':''}${esc(a.title)}</a>`}</h2><div class="sub">${E('sub',a.sub,a.id)}</div><div class="meta">${E('meta',a.meta,a.id)} · ${a.photos.length} 張</div>${ED?`<div class="ctl" data-id="${a.id}"><button data-a="up">↑</button><button data-a="dn">↓</button><button data-a="rm">✕</button><a class="eb" href="#a-${a.id}">編輯照片 →</a></div>`:''}</div>`).join('')}</div>${ED?'<button class="eb big" data-a="addA">＋ 新增相簿</button>':''}<footer>${E('name',D.name)} · Instagram ${ED?'@':`<a href="https://instagram.com/${esc(D.ig)}">@`}${E('ig',D.ig)}${ED?'':'</a>'}</footer></div>`;
+}
+function albumV(a){
+  const names=[...new Set(a.photos.flatMap(p=>p.t||[]))],f=view.f;
+  cur=a.photos.filter(p=>f==='all'||(f==='fav'?F[p.id]:(p.t||[]).includes(f)));
+  const nf=a.photos.filter(p=>F[p.id]).length;
+  const chip=(k,l)=>`<button class="chip${f===k?' on':''}" data-flt="${esc(k)}">${l}</button>`;
+  return `<div class="wrap"><a class="back" href="#">← 全部相簿</a><h1>${E('title',a.title,a.id)}</h1><div class="sub">${E('sub',a.sub,a.id)}</div><div class="meta">${E('meta',a.meta,a.id)} · ${a.photos.length} 張</div>${rt('desc',a.desc,a.id,'相簿介紹，可加入連結與字體格式')}<div class="chips">${chip('all','全部')}${chip('fav','❤️ 我的收藏 '+nf)}${names.map(n=>chip(n,'👤 '+esc(n))).join('')}</div>${a.dl===false?'':`<div class="ctl"><button class="eb" data-a="zip">${f==='all'?'⬇ 下載整本相簿 (ZIP)':`⬇ 下載目前顯示的 ${cur.length} 張 (ZIP)`}</button></div>`}${ED?'<div class="ctl"><button class="eb" data-a="upph">＋ 上傳照片</button><button class="eb" data-a="url">＋ 貼上圖片網址</button><button class="eb" data-a="pw">'+(a.pw?'🔒 已設密碼':'🔓 設定密碼')+'</button><button class="eb" data-a="dlflag">'+(a.dl===false?'⬇ 下載：關':'⬇ 下載：開')+'</button></div><br>':''}${bulk(cur.length)}<div class="masonry">${cur.map((p,i)=>`<figure class="${sel.has(p.id)?'sel':''}" data-pid="${p.id}">${ED?`<label class="ck"><input type="checkbox" data-a="sel"${sel.has(p.id)?' checked':''}></label>`:''}<img loading="lazy" src="${p.u}" data-i="${i}" alt="">${(p.t||[]).length?`<small>👤 ${esc(p.t.join('、'))}</small>`:''}<button class="heart${F[p.id]?' on':''}" data-a="fav">♥</button>${ED?'<div class="ctl"><button data-a="tag">👤</button><button data-a="cov">封面</button><button data-a="del">✕</button></div>':''}</figure>`).join('')}</div></div>`;
+}
+function render(keep){
+  const y=scrollY,a=curAlbum();
+  document.title=D.title;
+  app.innerHTML=a?(locked(a)?lockV(a):albumV(a)):indexV();
+  if(keep)scrollTo(0,y);
+}
+addEventListener('hashchange',()=>{view.f='all';sel.clear();render();scrollTo(0,0)});
+
+/* 燈箱 */
+const lb=document.createElement('div');lb.id='lb';lb.setAttribute('data-ui','');
+lb.innerHTML='<button class="x" data-l="x">✕</button><button class="n p" data-l="-1">‹</button><img alt=""><button class="n q" data-l="1">›</button><div class="cap"></div>';
+document.body.appendChild(lb);
+function show(){const p=cur[li];if(!p)return;$('img',lb).src=p.u;$('.cap',lb).innerHTML=`<button class="heart2${F[p.id]?' on':''}" data-l="h">♥</button> ${p.t&&p.t.length?'👤 '+esc(p.t.join('、')):''} ${(curAlbum()||{}).dl===false?'':`<a href="${p.u}" download="photo">下載</a>`}`}
+const closeLb=()=>{lb.classList.remove('on');render(true)};
+lb.addEventListener('click',e=>{const d=e.target.closest('[data-l]');
+  if(d){const v=d.dataset.l;if(v==='x')closeLb();else if(v==='h'){const p=cur[li];F[p.id]?delete F[p.id]:F[p.id]=1;saveF();show()}else{li=(li+ +v+cur.length)%cur.length;show()}}
+  else if(e.target===lb)closeLb()});
+addEventListener('keydown',e=>{if(!lb.classList.contains('on'))return;if(e.key==='Escape')closeLb();if(e.key==='ArrowLeft'){li=(li-1+cur.length)%cur.length;show()}if(e.key==='ArrowRight'){li=(li+1)%cur.length;show()}});
+
+/* 互動 */
+const fi=document.createElement('input');fi.type='file';fi.accept='image/*';fi.multiple=true;fi.hidden=true;fi.setAttribute('data-ui','');document.body.appendChild(fi);
+const shrink=(f,m=1600)=>new Promise(r=>{const i=new Image(),u=URL.createObjectURL(f);i.onload=()=>{const s=Math.min(1,m/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);URL.revokeObjectURL(u);r(c.toDataURL('image/jpeg',.82))};i.src=u});
+fi.onchange=async()=>{for(const f of fi.files)tgt.photos.push({id:uid(),u:await shrink(f),t:[]});dirty=true;render(true)};
+document.addEventListener('click',e=>{
+  const t=e.target,fl=t.closest('[data-flt]');
+  if(fl){view.f=fl.dataset.flt;render(true);return}
+  const b=t.closest('[data-a]');
+  if(b){act(b);return}
+  const im=t.closest('.masonry img');
+  if(im&&!ED){li=+im.dataset.i;show();lb.classList.add('on')}else if(im){const k=im.closest('figure').dataset.pid;sel.has(k)?sel.delete(k):sel.add(k);render(true)}
+});
+async function act(b){
+  const k=b.dataset.a,id=b.closest('[data-id]')&&b.closest('[data-id]').dataset.id,a=curAlbum(),fg=b.closest('figure'),p=fg&&a&&a.photos.find(x=>x.id===fg.dataset.pid);
+  const i=D.albums.findIndex(x=>x.id===id);
+  const key=p?p.id:id;
+  if(k==='sel'){sel.has(key)?sel.delete(key):sel.add(key);render(true);return}
+  if(k==='selall'){(a?cur:D.albums).forEach(x=>sel.add(x.id));render(true);return}
+  if(k==='selnone'){sel.clear();render(true);return}
+  if(k==='delsel'){if(!sel.size||!confirm(`確定刪除選取的 ${sel.size} 個項目？此動作無法復原。`))return;if(a)a.photos=a.photos.filter(x=>!sel.has(x.id));else D.albums=D.albums.filter(x=>!sel.has(x.id));sel.clear();dirty=true;render(true);return}
+  if(k==='zip'){dlZip(cur,a.title,b);return}
+  if(k==='dlflag'){a.dl=a.dl===false;dirty=true;render(true);return}
+  if(k==='pw'){const v=prompt(a.pw?'輸入新密碼（留空代表移除密碼）':'為這本相簿設定密碼','');if(v===null)return;a.pw=v?await hsh(v+a.id):'';dirty=true;render(true);return}
+  if(k==='fav'){F[p.id]?delete F[p.id]:F[p.id]=1;saveF()}
+  else if(k==='up'&&i>0)D.albums.splice(i-1,0,D.albums.splice(i,1)[0]);
+  else if(k==='dn'&&i<D.albums.length-1)D.albums.splice(i+1,0,D.albums.splice(i,1)[0]);
+  else if(k==='rm'){if(!confirm('刪除整本相簿？'))return;D.albums.splice(i,1)}
+  else if(k==='addA'){const n=prompt('相簿名稱？','新相簿');if(!n)return;D.albums.unshift({id:uid(),title:n,sub:'',meta:'',photos:[]})}
+  else if(k==='upph'){tgt=a;fi.value='';fi.click();return}
+  else if(k==='url'){const s=prompt('貼上圖片網址（多張請用空白或逗號分隔）');if(!s)return;s.split(/[\s,]+/).filter(Boolean).forEach(u=>a.photos.push({id:uid(),u,t:[]}))}
+  else if(k==='tag'){const v=prompt('這張照片裡有誰？（用逗號分隔，留空代表清除）',(p.t||[]).join(','));if(v===null)return;p.t=v.split(/[,，、\s]+/).filter(Boolean)}
+  else if(k==='cov'){a.cover=p.id;alert('已設為相簿封面')}
+  else if(k==='del'){if(!confirm('刪除這張照片？'))return;a.photos.splice(a.photos.indexOf(p),1)}
+  dirty=true;render(true);
+}
+document.addEventListener('focusout',e=>{
+  const el=e.target.closest&&e.target.closest('[data-f]');if(!el||!ED)return;
+  const v=el.textContent.trim(),a=D.albums.find(x=>x.id===el.dataset.id);
+  (a||D)[el.dataset.f]=v;dirty=true;
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.closest&&e.target.closest('[data-f]'))e.preventDefault()});
+document.addEventListener('paste',e=>{if(ED&&e.target.closest&&e.target.closest('[data-f]')){e.preventDefault();document.execCommand('insertText',false,e.clipboardData.getData('text/plain'))}});
+addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
+
+/* 編輯工具列 */
+if(ALLOW){
+  const tb=document.createElement('div');tb.className='tb';tb.setAttribute('data-ui','');
+  tb.innerHTML='<button id="tE">✎ 編輯模式</button><button id="tS">⬇ 儲存下載</button>';
+  document.body.appendChild(tb);
+  $('#tE').onclick=()=>{ED=!ED;sel.clear();$('#tE').textContent=ED?'✓ 完成編輯':'✎ 編輯模式';render(true)};
+  $('#tS').onclick=()=>{
+    $('#data').textContent=JSON.stringify(D).replace(/</g,'\\u003c');
+    const c=document.documentElement.cloneNode(true);
+    c.querySelector('#app').innerHTML='';
+    c.querySelectorAll('[data-ui]').forEach(n=>n.remove());
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+c.outerHTML],{type:'text/html'}));
+    a.download='gallery.html';a.click();dirty=false;
+  };
+}
+/* ===== 進階：富文字 / 字型 / 打包下載 / 相簿密碼 ===== */
+const unl=new Set();try{JSON.parse(sessionStorage.getItem('unl')||'[]').forEach(x=>unl.add(x))}catch(e){}
+const locked=a=>a.pw&&!ED&&!unl.has(a.id);
+async function hsh(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){let h=5381;for(const c of s)h=(h*33^c.charCodeAt(0))>>>0;return'x'+h}}
+const lockV=a=>`<div class="wrap lock"><a class="back" href="#">← 全部相簿</a><h1>🔒 ${esc(a.title)}</h1><div class="sub">這本相簿需要密碼</div><form data-lk="${a.id}"><input type="password" placeholder="輸入密碼" autofocus><button class="eb big" style="margin:0">進入</button><p class="err"></p></form></div>`;
+document.addEventListener('submit',async e=>{const f=e.target.closest('[data-lk]');if(!f)return;e.preventDefault();
+  const a=D.albums.find(x=>x.id===f.dataset.lk);
+  if(await hsh(f.querySelector('input').value+a.id)===a.pw){unl.add(a.id);try{sessionStorage.setItem('unl',JSON.stringify([...unl]))}catch(_){}render()}
+  else f.querySelector('.err').textContent='密碼不正確'});
+
+/* 富文字白名單清理 */
+function clean(h){
+  const d=new DOMParser().parseFromString('<body>'+(h||''),'text/html').body;
+  const OK={A:1,B:1,STRONG:1,I:1,EM:1,U:1,BR:1,SPAN:1,P:1,DIV:1,UL:1,OL:1,LI:1};
+  (function w(n){[...n.childNodes].forEach(c=>{
+    if(c.nodeType===3)return;
+    if(c.nodeType!==1||/^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED)$/.test(c.tagName)){c.remove();return}
+    w(c);
+    if(!OK[c.tagName]){c.replaceWith(...c.childNodes);return}
+    const st=c.getAttribute('style')||'',href=(c.getAttribute('href')||'').trim();
+    [...c.attributes].forEach(a=>c.removeAttribute(a.name));
+    const keep=st.split(';').map(x=>x.trim()).filter(x=>/^(font-family|font-size|color|font-weight|font-style|text-decoration|text-align)\s*:/i.test(x)&&!/url|expression|import|javascript|[{}<>]/i.test(x));
+    if(keep.length)c.setAttribute('style',keep.join(';'));
+    if(c.tagName==='A'){if(/^(https?:|mailto:|#)/i.test(href)){c.setAttribute('href',href);c.setAttribute('target','_blank');c.setAttribute('rel','noopener noreferrer')}else c.replaceWith(...c.childNodes)}
+  })})(d);
+  return d.innerHTML;
+}
+const rt=(k,h,id,ph)=>`<div class="rt" data-rt="${k}"${id?` data-id="${id}"`:''} data-ph="${ph}"${ED?' contenteditable':''}>${clean(h)}</div>`;
+const saveRt=el=>{const h=clean(el.innerHTML);if(el.dataset.rt==='intro')D.intro=h;else{const a=D.albums.find(x=>x.id===el.dataset.id);if(a)a.desc=h}dirty=true;scanFonts(h)};
+document.addEventListener('input',e=>{const r=e.target.closest&&e.target.closest('.rt');if(ED&&r)saveRt(r)});
+document.addEventListener('paste',e=>{if(ED&&e.target.closest&&e.target.closest('.rt')){e.preventDefault();document.execCommand('insertText',false,e.clipboardData.getData('text/plain'))}});
+
+/* 字型 */
+const BASE=[['思源黑體（預設）','Noto Sans TC','sans-serif'],['Jost','Jost','sans-serif'],['思源宋體','Noto Serif TC','serif'],['Playfair Display','Playfair Display','serif'],['Cormorant Garamond','Cormorant Garamond','serif'],['文楷','LXGW WenKai TC','serif'],['Zen Old Mincho','Zen Old Mincho','serif'],['Bebas Neue','Bebas Neue','sans-serif']];
+const fonts=()=>[...BASE,...(D.fonts||[]).map(n=>[n,n,'sans-serif']),...(D.ufonts||[]).map(f=>[f.name+'（上傳）',f.name,'sans-serif'])];
+const fv=f=>`'${f[1]}',${f[2]}`,th=()=>Object.assign({h:'Noto Sans TC',b:'Noto Sans TC'},D.theme||{});
+const loadedF=new Set(['Noto Sans TC','Jost']);
+function gfont(n){if(!n||loadedF.has(n)||(D.ufonts||[]).some(f=>f.name===n))return;loadedF.add(n);const l=document.createElement('link');l.rel='stylesheet';l.dataset.gf=n;l.href='https://fonts.googleapis.com/css2?family='+encodeURIComponent(n).replace(/%20/g,'+')+'&display=swap';document.head.appendChild(l)}
+function scanFonts(h){(h||'').replace(/font-family:\s*([^;"]+)/g,(m,x)=>{gfont(x.split(',')[0].replace(/&quot;|["']/g,'').trim())})}
+function applyTheme(){let s=$('#th');if(!s){s=document.createElement('style');s.id='th';document.head.appendChild(s)}const t=th(),fb=n=>(fonts().find(f=>f[1]===n)||[0,0,'sans-serif'])[2];
+  s.textContent=`body{font-family:'${t.b}',${fb(t.b)}}h1,.card h2{font-family:'${t.h}',${fb(t.h)}}`}
+function ufStyle(){let s=$('#uf');if(!s){s=document.createElement('style');s.id='uf';document.head.appendChild(s)}s.textContent=(D.ufonts||[]).map(f=>`@font-face{font-family:'${f.name}';src:url(${f.data})}`).join('')}
+document.querySelectorAll('link[data-gf]').forEach(l=>loadedF.add(l.dataset.gf));
+ufStyle();gfont(th().h);gfont(th().b);(D.fonts||[]).forEach(gfont);scanFonts(D.intro);D.albums.forEach(a=>scanFonts(a.desc));applyTheme();
+
+/* ZIP 打包下載（不壓縮，純前端）*/
+const crcT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc32=u=>{let c=-1;for(let i=0;i<u.length;i++)c=crcT[(c^u[i])&255]^(c>>>8);return(c^-1)>>>0};
+function zip(files){
+  const parts=[],cd=[],enc=new TextEncoder();let off=0,cs=0;
+  for(const f of files){const nm=enc.encode(f.name),crc=crc32(f.data),sz=f.data.length;
+    const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(12,0x21,true);h.setUint32(14,crc,true);h.setUint32(18,sz,true);h.setUint32(22,sz,true);h.setUint16(26,nm.length,true);
+    parts.push(h.buffer,nm,f.data);
+    const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(14,0x21,true);c.setUint32(16,crc,true);c.setUint32(20,sz,true);c.setUint32(24,sz,true);c.setUint16(28,nm.length,true);c.setUint32(42,off,true);
+    cd.push(c.buffer,nm);cs+=46+nm.length;off+=30+nm.length+sz}
+  const e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+  return new Blob([...parts,...cd,e.buffer],{type:'application/zip'});
+}
+async function dlZip(list,name,btn){
+  const old=btn.textContent,files=[],ext={'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif','image/svg+xml':'svg'};let bad=0;
+  for(let i=0;i<list.length;i++){btn.textContent=`打包中 ${i+1}/${list.length}…`;
+    try{const bl=await(await fetch(list[i].u)).blob();files.push({name:String(i+1).padStart(3,'0')+'.'+(ext[bl.type]||'jpg'),data:new Uint8Array(await bl.arrayBuffer())})}catch(e){bad++}}
+  btn.textContent=old;
+  if(!files.length){alert('無法下載：圖片來源不允許打包。');return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(zip(files));a.download=(name||'album').replace(/[\\/:*?"<>|]/g,'')+'.zip';a.click();
+  if(bad)alert(`有 ${bad} 張因來源限制無法打包。`);
+}
+
+/* 文字格式工具列 + 字型設定面板（僅編輯模式）*/
+const tbEl=$('.tb');
+if(tbEl){
+  const rb=document.createElement('div');rb.className='rtb';rb.setAttribute('data-ui','');document.body.appendChild(rb);
+  let lastR=null,lastRt=null;
+  const drawRb=()=>{rb.innerHTML='<button data-c="bold"><b>B</b></button><button data-c="italic"><i>I</i></button><button data-c="underline"><u>U</u></button><button data-c="link">🔗 連結</button><button data-c="unlink">取消連結</button><select data-c="fontName"><option value="">字型…</option>'+fonts().map(f=>`<option value="${esc(fv(f))}" data-n="${esc(f[1])}">${esc(f[0])}</option>`).join('')+'</select><select data-c="fontSize"><option value="">大小…</option><option value="2">小</option><option value="3">標準</option><option value="5">大</option><option value="6">特大</option></select><input type="color" data-c="foreColor" value="#1f1f1f"><button data-c="removeFormat">清除格式</button>'};
+  function ex(c,v){if(!lastR||!lastRt)return;lastRt.focus();const s=getSelection();s.removeAllRanges();s.addRange(lastR);document.execCommand('styleWithCSS',false,true);document.execCommand(c,false,v);saveRt(lastRt)}
+  document.addEventListener('selectionchange',()=>{const s=getSelection();if(!s.rangeCount)return;const n=s.anchorNode,el=n&&(n.nodeType===1?n:n.parentElement),r=el&&el.closest&&el.closest('.rt[contenteditable]');if(r){lastRt=r;lastR=s.getRangeAt(0).cloneRange()}});
+  rb.addEventListener('mousedown',e=>{if(!/SELECT|OPTION|INPUT/.test(e.target.tagName))e.preventDefault()});
+  rb.addEventListener('click',e=>{const b=e.target.closest('button[data-c]');if(!b)return;const c=b.dataset.c;
+    if(c==='link'){if(!lastR||lastR.collapsed){alert('請先選取要加上連結的文字');return}const u=prompt('連結網址','https://');if(u)ex('createLink',u)}else ex(c)});
+  rb.addEventListener('change',e=>{const s=e.target;if(s.type==='color'){ex('foreColor',s.value);return}
+    if(s.tagName==='SELECT'&&s.value){const o=s.selectedOptions[0];if(o.dataset.n)gfont(o.dataset.n);ex(s.dataset.c,s.value);s.selectedIndex=0}});
+  document.addEventListener('focusin',e=>{if(ED&&e.target.closest&&e.target.closest('.rt[contenteditable]')){drawRb();rb.classList.add('on')}});
+  document.addEventListener('mousedown',e=>{if(!e.target.closest('.rt,.rtb'))rb.classList.remove('on')});
+
+  const sb=document.createElement('button');sb.textContent='⚙ 字型設定';tbEl.insertBefore(sb,$('#tS'));
+  const sp=document.createElement('div');sp.className='sp';sp.setAttribute('data-ui','');document.body.appendChild(sp);
+  const opts=v=>fonts().map(f=>`<option value="${esc(f[1])}"${f[1]===v?' selected':''}>${esc(f[0])}</option>`).join('');
+  const draw=()=>{sp.innerHTML=`<button class="eb" data-s="x" style="float:right">✕</button><h4>全站字型</h4><label>標題字型<select id="sh">${opts(th().h)}</select></label><label>內文字型<select id="sbd">${opts(th().b)}</select></label><h4>新增字型</h4><input type="text" id="sg" placeholder="Google Fonts 名稱，例如 Shippori Mincho"><button class="eb" data-s="g">＋ 加入 Google 字型</button><p>也可以上傳字型檔（.woff2 / .ttf / .otf）。中文字型檔很大，會讓網站檔案變重，建議優先使用 Google 字型。</p><input type="file" id="sf" accept=".woff2,.woff,.ttf,.otf"><p>新增後，字型會出現在上方選單，以及文字格式工具列的「字型」選單。</p>`};
+  sb.onclick=()=>{draw();sp.classList.toggle('on')};
+  sp.addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(!b)return;
+    if(b.dataset.s==='x')sp.classList.remove('on');
+    if(b.dataset.s==='g'){const n=$('#sg').value.trim().replace(/[^\w\- ]/g,'');if(!n)return;D.fonts=D.fonts||[];if(!D.fonts.includes(n))D.fonts.push(n);gfont(n);dirty=true;draw()}});
+  sp.addEventListener('change',e=>{const t=e.target;
+    if(t.id==='sh'||t.id==='sbd'){D.theme=Object.assign({},th(),{[t.id==='sh'?'h':'b']:t.value});gfont(t.value);applyTheme();dirty=true}
+    if(t.id==='sf'&&t.files[0]){const f=t.files[0],n=f.name.replace(/\.[^.]+$/,'').replace(/[^\w\u4e00-\u9fff\- ]/g,'')||'MyFont',r=new FileReader();
+      r.onload=()=>{D.ufonts=(D.ufonts||[]).filter(x=>x.name!==n).concat({name:n,data:r.result});ufStyle();dirty=true;draw()};r.readAsDataURL(f)}});
+}
+
+render();
+</script>
+</body>
+</html>
